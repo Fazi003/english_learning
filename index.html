@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>English Learning tool</title>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>English Learning</h1>
+            <h2 id="question">Question goes here</h2>
+           <div class="buttons" id="buttons">
+            <button class="btn">Answer 1</button>
+            <button class="btn">Answer 1</button>
+            <button class="btn">Answer 1</button>
+            <button class="btn">Answer 1</button>
+           </div> 
+           <div class="next-btn-div">
+            <button class="btn" id="next-btn">Következő</button>
+           </div>
+        </div>
+    </div>
+    <script src="db.js"></script>
+    <script>
+        const questionElement = document.getElementById("question");
+const answerButtons = document.getElementById("buttons");
+const nextButton = document.getElementById("next-btn");
+
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function startQuiz(){
+    currentQuestionIndex = 0;
+    score=0;
+    nextButton.innerHTML="Következő";
+    showQuestion();
+}
+
+function showQuestion(){
+
+    resetState();
+
+    let  currentQuestion = questions[currentQuestionIndex];
+    let questionNo= currentQuestionIndex +1;
+    questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+
+    currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.innerHTML= answer.text;
+        button.classList.add("btn");
+        answerButtons.appendChild(button);
+        if(answer.correct){
+            button.dataset.correct = answer.correct
+        }
+        button.addEventListener("click", selectAnswer)
+    });
+}
+
+function resetState(){
+    nextButton.style.display ="none";
+    while(answerButtons.firstChild){
+        answerButtons.removeChild(answerButtons.firstChild);
+    }
+}
+
+function selectAnswer(e){
+    const selectedBtn = e.target;
+    const isCorrect = selectedBtn.dataset.correct === "true";
+    
+    if(isCorrect){
+        selectedBtn.classList.add("correct");
+        score++;
+    } else {
+        selectedBtn.classList.add("incorrect");
+    }
+
+    Array.from(answerButtons.children).forEach(button =>{
+        if (button.dataset.correct === "true"){
+            button.classList.add("correct")
+        }
+        button.disabled = true;
+    });
+
+    nextButton.style.display="flex"
+
+}
+
+function showScore(){
+    resetState();
+    questionElement.innerHTML = `Elért pontok: ${score} az elérhető ${questions.length} -ből`;
+    nextButton.innerHTML = "Újra";
+    nextButton.style.display = "flex";
+}
+
+function handleNextButton(){
+    currentQuestionIndex++;
+    if(currentQuestionIndex < questions.length){
+        showQuestion();
+    }else{
+        showScore();
+    }
+}
+
+
+nextButton.addEventListener("click", ()=>{
+    if(currentQuestionIndex<questions.length){
+        handleNextButton();
+    }else{
+        startQuiz();
+    }
+});
+
+
+startQuiz();
+    </script>
+</body>
+</html>
